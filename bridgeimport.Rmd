@@ -1,0 +1,63 @@
+---
+title: "Untitled"
+author: "Jianmin Chen"
+date: "2017年1月23日"
+output: html_document
+---
+```{r}
+library("tidyverse")
+setwd("E://威斯康星//479//bridge//data")
+variable<-c("STATE_CODE_001","STRUCTURE_NUMBER_008","YEAR_BUILT_027","DECK_COND_058","SUPERSTRUCTURE_COND_059","SUBSTRUCTURE_COND_060","MAINTENANCE_021","ADT_029","YEAR_ADT_030","TOTAL_IMP_COST_096")
+fileName <- dir("E://威斯康星//479//bridge//data")
+fileName<-c(fileName[7:23],fileName[1:6],fileName[24:25])
+dataList <- vector("list",length(fileName))
+y=1993
+for(i in 1:length(fileName)){
+    data <- read_delim(file=fileName[i],delim=",") 
+    dataname<-colnames(data)
+    index<-which(dataname%in%variable=="TRUE")
+    data<-select(data,index)
+    data<-mutate(data,year=rep(y,nrow(data)))
+    data<-cbind(data[,11],data[1:10])
+    dataList[[i]] <- list(fileName=fileName[i],data=data)
+    y=y+1
+}
+
+dataall<-NULL
+for(i in 1:length(fileName)){
+  dataall<-rbind(dataall,dataList[[i]]$data)
+}
+dataall<-data.frame(dataall)
+dataall<-arrange(dataall,STATE_CODE_001,STRUCTURE_NUMBER_008,year)
+write.csv(dataall,file="dataall.csv",sep=)
+
+```
+ 
+ 
+take data of 5 years
+```{r}
+filename5<-c(fileName[21:25])
+y=2012
+data5<-NULL
+for(i in 1:length(filename5)){
+    data <- read_delim(file=filename5[i],delim=",") 
+    dataname<-colnames(data)
+    index<-which(dataname%in%variable=="TRUE")
+    data<-select(data,index)
+    data<-mutate(data,year=rep(y,nrow(data)))
+    data<-cbind(data[,11],data[1:10])
+    data5<-rbind(data5,data)
+    y=y+1
+}
+data5<-data.frame(data5)
+data5<-arrange(data5,STATE_CODE_001,STRUCTURE_NUMBER_008,year)
+save(data5,file="data5.RData")
+```
+
+take data of 1 state from 5 years
+```{r}
+indexstate<-which(data5$STATE_CODE_001==29)
+data5_29<-data5[indexstate,]
+save(data5_29,file="data5_29.RData")
+```
+
